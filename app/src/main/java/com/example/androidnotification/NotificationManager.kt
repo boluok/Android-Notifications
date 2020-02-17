@@ -14,7 +14,7 @@ import java.io.Serializable
 
 interface NotificationManagerInterface{
     fun sendSimpleNotification(messageId: Int,icon:Int,title:String,body:String,priority:Int = NotificationCompat.PRIORITY_DEFAULT,intent: Intent? = null,autoCancel:Boolean=true)
-    fun sendActionablePusNotification(messageId: Int,icon:Int,title:String,body:String,vararg actions:ActionablePushNotification,priority:Int = NotificationCompat.PRIORITY_DEFAULT,intent: Intent? = null,autoCancel:Boolean=true)
+    fun sendActionablePusNotification(messageId: Int,icon:Int,title:String,body:String,vararg actions:ActionablePushNotification,priority:Int = NotificationCompat.PRIORITY_DEFAULT,autoCancel:Boolean=true)
     fun sendExpandableImageNotification(messageId: Int,icon:Int,title:String,body:String,image:Bitmap,priority:Int = NotificationCompat.PRIORITY_DEFAULT,intent: Intent? = null,autoCancel:Boolean=true)
     fun sendExpandableNotification(messageId: Int,icon:Int,title:String,body:String,fullBody:String,priority:Int = NotificationCompat.PRIORITY_DEFAULT,intent: Intent? = null,autoCancel:Boolean=true)
     fun removeNotification(notificationID:Int)
@@ -70,7 +70,6 @@ class NotificationManagerInterfaceImpl(private val context: Context,private val 
         body: String,
         vararg actions: ActionablePushNotification,
         priority: Int,
-        intent: Intent?,
         autoCancel: Boolean
     ) {
         require(actions.size <= 3){"You cannot have more than 3 actions"}
@@ -79,12 +78,7 @@ class NotificationManagerInterfaceImpl(private val context: Context,private val 
             .setContentText(body)
             .setPriority(priority)
             .setAutoCancel(autoCancel)
-        intent?.let {
-            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, 0, intent, 0)
-            builder.setContentIntent(pendingIntent)
-        }
-        if(!actions.isNullOrEmpty())
-        addActions(actions,builder,messageId)
+        if(!actions.isNullOrEmpty()) addActions(actions,builder,messageId)
         with(NotificationManagerCompat.from(context)) {
             // notificationId is a unique int for each notification that you must define
             notify(messageId, builder.build())
